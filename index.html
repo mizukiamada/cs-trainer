@@ -1,0 +1,512 @@
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e1320; --panel:#161d2e; --panel-2:#1d2638; --line:#2a3650;
+    --ink:#e8edf7; --ink-soft:#9aa7c2; --accent:#3fd6b0; --accent-2:#5b8cff;
+    --warn:#ffb454; --bad:#ff6b7a; --good:#3fd6b0; --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Zen Kaku Gothic New","Outfit",system-ui,sans-serif;
+    background:radial-gradient(1200px 600px at 85% -10%, rgba(91,140,255,.18), transparent 60%),radial-gradient(900px 500px at -10% 110%, rgba(63,214,176,.14), transparent 55%),var(--bg);
+    color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:880px;margin:0 auto;padding:28px 18px 60px}
+  header.top{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+  .logo{width:46px;height:46px;border-radius:13px;flex:none;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-family:"Outfit";font-weight:800;color:#0e1320;font-size:22px;box-shadow:0 8px 24px rgba(63,214,176,.3)}
+  .top h1{font-size:20px;font-weight:900;letter-spacing:-.01em}
+  .top p{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+  .label{font-size:12px;font-weight:700;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+  .scenarios{display:grid;gap:10px}
+  .scn{cursor:pointer;border:1.5px solid var(--line);border-radius:13px;padding:14px 16px;background:var(--bg);transition:.18s;display:flex;align-items:center;gap:13px}
+  .scn:hover{border-color:var(--accent-2)}
+  .scn.sel{border-color:var(--accent);background:rgba(63,214,176,.07)}
+  .scn .ico{font-size:22px;flex:none}
+  .scn .st{font-weight:700;font-size:14.5px}
+  .scn .sd{font-size:12px;color:var(--ink-soft);margin-top:3px}
+  .diff{margin-left:auto;font-size:10.5px;font-family:"Outfit";font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .diff.easy{background:rgba(63,214,176,.16);color:var(--good)}
+  .diff.mid{background:rgba(255,180,84,.16);color:var(--warn)}
+  .diff.hard{background:rgba(255,107,122,.16);color:var(--bad)}
+  .btn{width:100%;border:none;border-radius:13px;padding:15px;cursor:pointer;font-family:"Outfit";font-weight:700;font-size:15px;color:#0e1320;background:linear-gradient(135deg,var(--accent),var(--accent-2));transition:.16s}
+  .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+  .btn.ghost:hover{border-color:var(--accent-2)}
+  .hint{font-size:11.5px;color:var(--ink-soft);text-align:center;margin-top:14px;line-height:1.6}
+
+  .chatwrap,.result{display:none}
+  .chathead{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+  .avatar{width:44px;height:44px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:22px;background:var(--panel-2);border:1px solid var(--line)}
+  .chathead .cn{font-weight:800;font-size:15px}
+  .chathead .cs{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .chathead .prog{margin-left:auto;font-size:11px;font-family:"Outfit";font-weight:700;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--ink-soft)}
+  .stream{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+  .stream::-webkit-scrollbar{width:8px}
+  .stream::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+  .msg{max-width:80%;padding:12px 15px;border-radius:15px;font-size:14px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+  .msg.cust{align-self:flex-start;background:var(--panel-2);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--accent-2),#4a7bff);color:#fff;border-bottom-right-radius:5px}
+  .msg.sys{align-self:center;font-size:11.5px;color:var(--ink-soft);background:transparent;max-width:90%;text-align:center;font-style:italic}
+
+  .templates{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .tpl{font-size:11.5px;font-weight:600;padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);cursor:pointer;transition:.15s}
+  .tpl:hover{border-color:var(--accent-2);color:var(--ink)}
+  .tpl b{font-family:"Outfit";color:var(--accent)}
+  .composer{display:flex;gap:10px;margin-top:10px}
+  .composer textarea{flex:1;resize:none;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:13px;padding:13px 15px;font-family:inherit;font-size:14px;line-height:1.5;height:52px;max-height:140px}
+  .composer textarea:focus{outline:none;border-color:var(--accent-2)}
+  .send{flex:none;width:52px;border-radius:13px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#0e1320;font-size:20px;font-weight:800}
+  .send:disabled{opacity:.4;cursor:not-allowed}
+  .toolbar{display:flex;gap:10px;margin-top:12px}
+  .toolbar .btn{font-size:13px;padding:11px}
+
+  .scorebig{text-align:center;padding:6px 0 14px}
+  .scorebig .num{font-family:"Outfit";font-weight:800;font-size:64px;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .scorebig .of{font-size:16px;color:var(--ink-soft);font-family:"Outfit"}
+  .scorebig .verdict{font-weight:800;font-size:15px;margin-top:8px}
+  .scorebig .sub{font-size:12px;color:var(--ink-soft);margin-top:6px}
+  .review{display:grid;gap:14px}
+  .turn{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .turn .q{background:var(--panel-2);padding:11px 14px;font-size:13px;line-height:1.6}
+  .turn .q b,.turn .a b,.turn .p b,.turn .m b{font-weight:700;font-size:11px;display:block;margin-bottom:3px}
+  .turn .q b{color:var(--ink-soft)}
+  .turn .a{padding:11px 14px;font-size:13px;line-height:1.6;border-top:1px solid var(--line)}
+  .turn .a b{color:var(--accent-2)}
+  .turn .p{padding:11px 14px;font-size:12.5px;line-height:1.65;border-top:1px solid var(--line);background:rgba(63,214,176,.05);color:var(--ink-soft)}
+  .turn .p b{color:var(--accent)}
+  .turn .m{padding:11px 14px;font-size:12.5px;line-height:1.65;border-top:1px solid var(--line);background:rgba(91,140,255,.06);color:var(--ink-soft)}
+  .turn .m b{color:var(--accent-2)}
+  .checklist{margin-top:4px}
+  .checklist h3{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .checklist .note{font-size:12px;color:var(--ink-soft);margin-bottom:12px;line-height:1.6}
+  .chk{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;margin-bottom:8px;cursor:pointer;transition:.15s}
+  .chk:hover{border-color:var(--accent-2)}
+  .chk.on{border-color:var(--accent);background:rgba(63,214,176,.07)}
+  .chk .box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line);flex:none;display:grid;place-items:center;font-size:13px;color:#0e1320;margin-top:1px}
+  .chk.on .box{background:var(--accent);border-color:var(--accent)}
+  .chk .txt{font-size:13.5px;line-height:1.55}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="logo">CS</div>
+    <div>
+      <h1>CSチャット対応トレーナー</h1>
+      <p>Squad Beyond 問い合わせ対応 / インターン研修用（実データ版）</p>
+    </div>
+  </header>
+
+  <div id="setup">
+    <div class="card">
+      <div class="label">シナリオを選ぶ（実際の問い合わせをもとに作成）</div>
+      <div class="scenarios" id="scnList"></div>
+    </div>
+    <button class="btn" id="startBtn">対応をはじめる</button>
+    <div class="hint">実際のチャット対応のつもりで返信してみましょう。挨拶や締めはテンプレ（マクロ）ボタンで挿入できます。評価のポイントは「自分で考えて案内する部分」です。対応後に実際の対応例と自己チェックで振り返れます。</div>
+  </div>
+
+  <div class="chatwrap" id="chatwrap">
+    <div class="chathead">
+      <div class="avatar" id="chAvatar">🙍</div>
+      <div>
+        <div class="cn" id="chName">顧客</div>
+        <div class="cs" id="chScn">—</div>
+      </div>
+      <div class="prog" id="chProg">1 / 4</div>
+    </div>
+    <div class="stream" id="stream"></div>
+    <div class="templates" id="templates"></div>
+    <div class="composer">
+      <textarea id="input" placeholder="返信を入力…（送信は ➤ ボタン）"></textarea>
+      <button class="send" id="sendBtn">➤</button>
+    </div>
+    <div class="toolbar">
+      <button class="btn ghost" id="endBtn">対応を終了して振り返る</button>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="card">
+      <div class="scorebig">
+        <div><span class="num" id="snum">0</span><span class="of">/100</span></div>
+        <div class="verdict" id="sv">—</div>
+        <div class="sub">下のチェックリストを付けると点数が出ます</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">対応の振り返り（実際の対応例つき）</div>
+      <div class="review" id="review"></div>
+    </div>
+    <div class="card">
+      <div class="checklist">
+        <h3>自己チェック</h3>
+        <div class="note">自分の対応を振り返り、できていた項目にチェックを入れてください。挨拶・締めのテンプレ部分は評価に含めず、自分で考えて対応した中身を評価します。</div>
+        <div id="chkList"></div>
+      </div>
+    </div>
+    <button class="btn" id="againBtn">別のシナリオ / もう一度</button>
+  </div>
+</div>
+
+<script>
+// よく使うマクロ（テンプレ）。実際の使用回数の多いものを採用。
+const TEMPLATES = [
+  {label:"お問い合わせ完了", text:"また他のご不明点・ご質問等ございましたら\nいつでも「チャットを始める」よりご連絡ください。\n引き続き、Squad beyondをよろしくお願いいたします！\n\n※本内容は社内で共有されるため、\n次回以降別のメンバーでも同様の対応が可能です。"},
+  {label:"完了後 最後に送る", text:"本チャットは終了いたしました。\n終了後はこちらのチャットにお問合せ頂きましても、サポート側からは内容の確認ができなくなっておりますのでご了承ください。\n\nお問い合わせ時は、新規チャットよりお気軽にご連絡下さいませ。"},
+];
+
+// 実際の対応データをもとに作成（個人名・URL・社内リンクは匿名化／除去）
+const SCENARIOS = [
+  {
+    id:"domain", icon:"🌐", diff:"easy", diffLabel:"やさしい",
+    name:"運用担当者", title:"フォルダのドメイン変更は可能？",
+    desc:"フリードメインで作ったフォルダを独自ドメインに変えたい",
+    script:[
+      {cust:"一度フリードメインを選択して作成したフォルダを、後から独自ドメインへ変更することは可能ですか？",
+       point:"結論（変更可能）を端的に伝え、ナレッジ記事の該当ページを案内する。即答できる定型的な質問。",
+       model:"既に作成したフォルダのドメイン変更は可能です。方法はナレッジ記事（ドメイン変更）にまとまっているのでご案内し、確認を促す。"},
+      {cust:"ありがとうございます。Versionを作り込んでしまった後にドメインを変更しても、Version内容への影響はないという認識でよろしいでしょうか。",
+       point:"懸念点（作り込んだ内容が消えないか）に対し、影響がないと明確に断言して安心させる。",
+       model:"「Versionの内容に影響はございません！」と明確に回答し、不安を解消する。"},
+      {cust:"承知いたしました！ありがとうございます。",
+       point:"お礼を受け、締めのテンプレで気持ちよくクローズする。",
+       model:"「よろしくお願いいたします🙏」など一言添え、「お問い合わせ完了」テンプレでクローズ。"}
+    ],
+    checklist:[
+      "結論（変更可能か）を最初に端的に伝えた",
+      "ナレッジ記事など正確な情報源を案内した",
+      "顧客の懸念（影響の有無）に明確に答えて安心させた",
+      "丁寧でわかりやすい言葉づかいができた",
+      "適切なタイミングで締めのテンプレを使ってクローズした"
+    ]
+  },
+  {
+    id:"heatmap", icon:"📈", diff:"mid", diffLabel:"普通",
+    name:"運用担当者", title:"ヒートマップが途中までしか見れない",
+    desc:"アンケート記事で1問目以降のヒートマップが見れない",
+    script:[
+      {cust:"お世話になっております。ヒートマップに関してご教授頂きたいことがございます。",
+       point:"まず受け止め、具体的な状況を聞く姿勢を示す。いきなり長文回答せず、内容を確認する一次受けが大事。",
+       model:"「ヒートマップに関してですね！続けてご質問内容についてお伺いいたします」と受け止め、詳細を促す。"},
+      {cust:"回答すると次の設問が出てくるタイプのアンケート記事なのですが、1問目以降のヒートマップが見れません。記事全体のヒートマップを確認する方法はありますか？",
+       point:"記事を確認する旨を伝えてから、仕様上できないことを正直に説明する。できない理由（最初から表示されていない部分は取得対象外）を分かりやすく伝えられるか。",
+       model:"記事を確認のうえ、現在の仕様では最初から全文表示されていないとヒートマップが取得できないと説明。1問目以降は回答後に表示されるため対象外、と理由まで添える。"},
+      {cust:"そうなんですね…全体を把握したいのですが、何か方法はないでしょうか？",
+       point:"「できません」で終わらせず、代替案（外部の無料ヒートマップツール等）を提案できるか。顧客の目的（全体把握）に寄り添う姿勢。",
+       model:"代替案として、外部の無料ヒートマップツール（Clarity等）でのレコーディング確認を提案する。"},
+      {cust:"承知いたしました！代替案のご提案、ありがとうございます！",
+       point:"お礼を受け止め、締めのテンプレでクローズ。",
+       model:"「よろしくお願いいたします🙏」と受け、「お問い合わせ完了」テンプレでクローズ。"}
+    ],
+    checklist:[
+      "いきなり長文で答えず、状況を確認する一次受けをした",
+      "仕様上できないことを正直に、かつ理由つきで説明した",
+      "「できない」で終わらせず代替案を提案した",
+      "顧客の目的（全体把握）に寄り添う姿勢を示した",
+      "わかりやすい言葉で説明し、丁寧にクローズした"
+    ]
+  },
+  {
+    id:"upload", icon:"🖼", diff:"mid", diffLabel:"普通",
+    name:"運用担当者", title:"画像のアップロードができない",
+    desc:"サーバーエラーで画像をアップロードできない",
+    script:[
+      {cust:"サーバーエラーとのことで画像のアップロードができない状況なのですが、どうすればよいでしょうか？",
+       point:"まず受け止め、原因調査のために該当の画像（素材）を共有してもらうよう依頼する。手元の情報だけで断定しない。",
+       model:"「アップロードされた画像をご共有いただけますと幸いです！」と、調査に必要な素材の共有を依頼する。"},
+      {cust:"こちらになります！（画像を共有）",
+       point:"共有のお礼を述べ、「確認いたします」と一次受け。すぐ結論を出さず調べる姿勢。",
+       model:"「ありがとうございます！確認いたします！」と受け、調査に入る。"},
+      {cust:"よろしくお願いします。",
+       point:"原因（画像の容量が大きすぎる）を特定し、具体的な解決方法（横幅を400px程度に縮小して容量を下げる）を案内できるか。専門的な内容を平易に。",
+       model:"確認の結果、容量が原因と判明。素材の横幅を400px程度に変更して容量を下げる方法を、手順つきで案内する。"},
+      {cust:"承知しました！ありがとうございます。",
+       point:"対応のお礼を述べ、締めのテンプレでクローズ。",
+       model:"「ご対応のほどよろしくお願いいたします🙏」と添え、「お問い合わせ完了」テンプレでクローズ。"}
+    ],
+    checklist:[
+      "原因調査のため、該当素材の共有を依頼した",
+      "すぐ結論を出さず「確認します」と一次受けした",
+      "原因（容量超過）を特定して伝えた",
+      "具体的な解決手順をわかりやすく案内した",
+      "丁寧にお礼を述べてクローズした"
+    ]
+  },
+  {
+    id:"hide", icon:"🙈", diff:"mid", diffLabel:"普通",
+    name:"運用担当者", title:"配信していない記事を非表示にしたい",
+    desc:"クライアントから外部に表示されないようにと依頼された",
+    script:[
+      {cust:"記事を非表示にするにはどうしたら良いでしょうか？クライアントから、配信してない記事を外部表示できないようにしてほしいと言われており、操作方法を教えていただきたいです！",
+       point:"要望（外部に表示させたくない）を正しく汲み取り、確認する旨を伝える。背景（クライアント要望）も理解した上で対応。",
+       model:"「beyondページの非表示ですね！確認いたします」と受け止め、調査に入る。"},
+      {cust:"ありがとうございます。お願いします！",
+       point:"目的に応じた方法を整理して案内できるか。①Versionを非公開にする方法、②URL自体をなくす方法（ドメイン未設定のフォルダに移動）など、選択肢を示す。",
+       model:"目的別に方法を案内。Versionの配信割合を調整して非公開にする方法、URLをなくしたい場合はドメイン未設定フォルダへ移動する方法を、手順とFAQつきで提示。"},
+      {cust:"ありがとうございます！理解できました！",
+       point:"理解のお礼を受け止め、締めのテンプレでクローズ。",
+       model:"「ご確認いただきありがとうございます！」と受け、「お問い合わせ完了」テンプレでクローズ。"}
+    ],
+    checklist:[
+      "要望と背景（クライアント要望）を正しく汲み取った",
+      "確認する姿勢を一次受けで示した",
+      "目的に応じた複数の方法を整理して案内した",
+      "手順やFAQを添えてわかりやすく説明した",
+      "丁寧にクローズした"
+    ]
+  },
+  {
+    id:"popup", icon:"💬", diff:"mid", diffLabel:"普通",
+    name:"運用担当者", title:"ポップアップが表示されない",
+    desc:"追従型ポップアップを設定したがスマホで表示されない",
+    script:[
+      {cust:"この記事LPで追従型のポップアップを設定したはずなんですが、スマホで開いても表示されず…原因お分かりになりますでしょうか？（ページURLを共有）",
+       point:"URL共有のお礼を述べ、確認する旨を伝える。再現確認のため実際にページを見る姿勢。",
+       model:"「該当のbeyondページをご共有いただきありがとうございます！確認させていただきます」と受ける。"},
+      {cust:"よろしくお願いします。",
+       point:"確認の結果（ポップアップが設定されていないように見える）を率直に伝え、再設定を依頼する。決めつけず「見受けられました」という柔らかい表現。",
+       model:"確認したところ追従型ポップアップが設定されていないように見受けられた旨を伝え、再設定をお願いする。"},
+      {cust:"あれ、設定したつもりだったのですが…もう一度やってみます。",
+       point:"自社環境では正常に表示できたことを伝えて安心させ、再度試してもらうよう促す。保存されない等の問題があれば共有を依頼するフォローも。",
+       model:"「弊社環境では正常に表示できました◎ 再度お試しいただけますと幸いです」と伝え、設定が保存されない等あれば共有を、とフォロー。"},
+      {cust:"わかりました、やってみます。ありがとうございます。",
+       point:"お礼を受け止め、締めのテンプレでクローズ。",
+       model:"丁寧に受け、「お問い合わせ完了」テンプレでクローズ。"}
+    ],
+    checklist:[
+      "URL共有のお礼を述べ、確認の姿勢を示した",
+      "確認結果を決めつけず柔らかい表現で伝えた",
+      "再設定を具体的に依頼した",
+      "自社環境での確認結果を伝えて安心させた",
+      "保存トラブル時のフォローを案内してクローズした"
+    ]
+  },
+  {
+    id:"widget", icon:"🧩", diff:"mid", diffLabel:"普通",
+    name:"運用担当者", title:"診断系ウィジェットを作りたい",
+    desc:"QAに答えると結果が出る「年齢診断」風を作りたい",
+    script:[
+      {cust:"年齢診断のようなものを作成したいのですが、良いウィジェットってございますでしょうか。イメージ：QAに回答していき、最後に結果を発表する形です。",
+       point:"曖昧な要望に対し、イメージを具体化するヒアリングをする。参考にしているLPがあれば共有を依頼するなど、認識をすり合わせる。",
+       model:"「回答によって診断結果が変わるWidgetをイメージされていますか？参考LPがあればご共有ください」と確認する。"},
+      {cust:"はい、回答によって結果が変わるイメージです。参考LPは特にないのですが…。",
+       point:"要望に合うウィジェット候補を提示し、イメージと相違ないか確認を促す。複数案を出せると尚良い。",
+       model:"「Yesの数で結果が変わるアンケート」「分岐型の診断アンケート」などの候補を提示し、イメージと合うか確認を依頼する。"},
+      {cust:"ありがとうございます、確認してみます。",
+       point:"確認を促し、追加情報があれば連絡を、と伝えてクローズ。離席されている場合は一旦クローズの案内。",
+       model:"確認を促し、追加情報があれば連絡を、と案内。返信がなければ一旦クローズのテンプレを使う。"}
+    ],
+    checklist:[
+      "曖昧な要望を具体化するヒアリングをした",
+      "参考LPの共有依頼など認識をすり合わせた",
+      "要望に合う候補を提示した",
+      "イメージとの相違を確認する姿勢を示した",
+      "追加情報の連絡を促して適切にクローズした"
+    ]
+  },
+  {
+    id:"permission", icon:"🔑", diff:"mid", diffLabel:"普通",
+    name:"運用担当者", title:"媒体連携の画面が空になっている",
+    desc:"媒体連携の画面に何も表示されず入力できない",
+    script:[
+      {cust:"媒体連携の画面についてです。御社の例には媒体が並んでいるんですが、弊社アカウントで入るとまっさらで、連携情報を入力できず…。弊社アカウントの権限の問題でしょうか？",
+       point:"状況（権限の問題かという問い）に対し、キャプチャ等の情報共有のお礼を述べ、確認する。",
+       model:"「キャプチャ共有ありがとうございます！」と受け、確認に進む。"},
+      {cust:"よろしくお願いします。",
+       point:"原因（現在メンバー権限のため、媒体連携の権限がない）を特定し、解決策（オーナー権限の方に操作してもらう）を案内できるか。権限についてのナレッジも添える。",
+       model:"現在メンバー権限のため媒体連携の権限がない状態と説明し、権限についてのナレッジを案内。オーナー権限の方に操作いただくよう依頼する。"},
+      {cust:"ありがとうございます！承知いたしました！",
+       point:"理解のお礼を受け、締めのテンプレでクローズ。",
+       model:"「ご確認いただきありがとうございます！」と受け、「お問い合わせ完了」テンプレでクローズ。"}
+    ],
+    checklist:[
+      "共有された情報（キャプチャ）のお礼を述べた",
+      "原因（権限不足）を特定して伝えた",
+      "解決策（オーナー権限者の操作）を具体的に案内した",
+      "権限に関する正確な情報源を添えた",
+      "丁寧にクローズした"
+    ]
+  },
+  {
+    id:"cv", icon:"📊", diff:"hard", diffLabel:"難しい",
+    name:"代理店 営業担当", title:"外部ツールのCVデータ連携でつまずいた",
+    desc:"計測ツールのCVデータをSquad Beyondに返す設定手順を知りたい",
+    script:[
+      {cust:"お世話になります。クライアントを担当している代理店の者です。先方のSquad beyondへ、計測ツールのCVデータを返したいのですが、設定方法のところでつまずいてしまいました。操作手順を教えていただけますか？",
+       point:"問い合わせ者が代理店（顧客の代理）であることを踏まえつつ、該当ツール連携のFAQを案内する。まず一次受けの挨拶も。",
+       model:"「◯◯との連携についてですね！」と受け止め、該当ツール連携のFAQを案内する。"},
+      {cust:"ありがとうございます。FAQを見てみますが、もし途中で分からなければまた聞いてもいいですか？",
+       point:"FAQで不明点があればいつでも聞いてほしいと伝え、サポートを継続する姿勢を示す。",
+       model:"「手順の中でご不明点がございましたらお申し付けくださいませ」とフォローを約束する。"},
+      {cust:"わかりました、ありがとうございます。",
+       point:"解決できたか確認しつつ、締めのテンプレでクローズ。未解決の可能性があれば再連絡を促す。",
+       model:"「上記の内容で解決できましたか？😊」と確認し、いつでも連絡をと案内して「お問い合わせ完了」テンプレでクローズ。"}
+    ],
+    checklist:[
+      "問い合わせ者の立場（代理店）を踏まえて対応した",
+      "該当する連携FAQを正確に案内した",
+      "不明点があれば聞いてほしいとフォローを伝えた",
+      "解決できたかを確認した",
+      "再連絡を促して丁寧にクローズした"
+    ]
+  },
+  {
+    id:"report", icon:"🚫", diff:"hard", diffLabel:"難しい",
+    name:"運用担当者", title:"媒体の審査クリックをレポートから除外したい",
+    desc:"特定媒体の審査クリックをレポートから除きたい",
+    script:[
+      {cust:"特定の媒体の審査クリックを、レポートから除外したいのですが、可能でしょうか。",
+       point:"要望を正確に復唱して受け止め、確認する旨を伝える。関連FAQの案内も。",
+       model:"「◯◯の審査クリックをレポートから除外したい、ということですね。確認させていただきます！」と受け、関連FAQを案内。"},
+      {cust:"はい、その認識で合っています。可能であれば設定方法を教えてください。",
+       point:"その場で断定できない技術的な内容について、社内確認が必要と判断できるか。安易に「できます／できません」と答えない慎重さ。",
+       model:"判断が難しい内容のため、その場で断定せず社内確認に進む判断をする。"},
+      {cust:"承知しました。よろしくお願いします。",
+       point:"社内で確認する旨と、確認でき次第あらためて新規チャットで連絡する旨を伝え、時間がかかることへのお詫び・お願いを添える。",
+       model:"「一度社内にて確認させていただきます🙏 進捗があり次第、新規チャットにてご連絡いたします。お時間をいただきますがよろしくお願いいたします」と伝える。"}
+    ],
+    checklist:[
+      "要望を正確に復唱して受け止めた",
+      "関連する情報源（FAQ）を案内した",
+      "断定できない内容を安易に答えず、社内確認が必要と判断した",
+      "社内確認と再連絡の流れを明確に伝えた",
+      "時間がかかることへのお詫び・お願いを添えた"
+    ]
+  },
+  {
+    id:"plan", icon:"⚠️", diff:"hard", diffLabel:"難しい",
+    name:"運用担当者", title:"急に記事が見れなくなった（権限変更）",
+    desc:"昨日まで編集できた記事が今日は見られない",
+    script:[
+      {cust:"記事を作成していたのですが、リロードしたら今まで記事が並んでいたページが出なくなってしまいました。権限を誰かが変更したのでしょうか？昨晩は編集できていたのですが…。",
+       point:"困惑と不安が出ている。まず状況を受け止め、確認する。原因がこちら側の事情（権限変更）の場合、伝え方に配慮が要る。",
+       model:"「記事が見つからないということですね。確認いたします」と受け、状況を調べる。"},
+      {cust:"はい、お願いします。何か私の操作が問題だったのでしょうか…？",
+       point:"原因（無料キャンペーン終了に伴い、契約人数超過分がフリーユーザーに変更された）を、顧客のせいにせず事実として丁寧に説明できるか。言いにくい内容を誠実に。",
+       model:"現在フリーユーザーになっており、オーナー権限者が付与したフォルダのみ閲覧可能と説明。背景として、無料追加キャンペーン終了と契約人数超過のため変更した旨を、事実として丁寧に伝える。"},
+      {cust:"承知しました。では、また編集するにはどうすればいいですか？",
+       point:"解決策（オーナー権限者に権限を付与してもらう／契約人数以上で編集するならプランアップグレードが必要）を、契約内容とあわせて明確に案内できるか。",
+       model:"オーナー権限者から権限を付与してもらう必要がある旨、契約人数以上で編集する場合はプランアップグレードが必要な旨を、現在の契約内容とあわせて案内する。"},
+      {cust:"なるほど、わかりました。社内で相談してみます。",
+       point:"理解いただいたことに感謝し、注意点を添えてクローズ。離席時は一旦クローズのテンプレ。",
+       model:"フリーユーザーの制約に注意いただくよう添え、丁寧にクローズする。"}
+    ],
+    checklist:[
+      "困惑・不安をまず受け止めた",
+      "原因を顧客のせいにせず事実として丁寧に説明した",
+      "言いにくい内容（こちら側都合の変更）を誠実に伝えた",
+      "解決策と契約内容を明確に案内した",
+      "注意点を添えて丁寧にクローズした"
+    ]
+  }
+];
+
+const state = { scn:SCENARIOS[0], turn:0, answers:[], checks:[] };
+
+const scnList = document.getElementById("scnList");
+SCENARIOS.forEach((s,i)=>{
+  const el = document.createElement("div");
+  el.className = "scn"+(i===0?" sel":"");
+  el.innerHTML = `<div class="ico">${s.icon}</div>
+    <div><div class="st">${s.title}</div><div class="sd">${s.desc}</div></div>
+    <div class="diff ${s.diff}">${s.diffLabel}</div>`;
+  el.onclick = ()=>{ document.querySelectorAll(".scn").forEach(x=>x.classList.remove("sel")); el.classList.add("sel"); state.scn=s; };
+  scnList.appendChild(el);
+});
+
+const stream = document.getElementById("stream");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("sendBtn");
+
+// テンプレボタン
+const tplBox = document.getElementById("templates");
+TEMPLATES.forEach(t=>{
+  const b = document.createElement("div");
+  b.className="tpl";
+  b.innerHTML = `<b>＋</b> ${t.label}`;
+  b.onclick = ()=>{
+    input.value = (input.value ? input.value+"\n\n" : "") + t.text;
+    input.focus(); input.style.height="52px"; input.style.height=Math.min(input.scrollHeight,140)+"px";
+  };
+  tplBox.appendChild(b);
+});
+
+function addMsg(role, text){
+  const el=document.createElement("div"); el.className="msg "+role; el.textContent=text;
+  stream.appendChild(el); stream.scrollTop=stream.scrollHeight;
+}
+function updProg(){ document.getElementById("chProg").textContent = Math.min(state.turn+1, state.scn.script.length)+" / "+state.scn.script.length; }
+
+function startChat(){
+  document.getElementById("setup").style.display="none";
+  document.getElementById("chatwrap").style.display="block";
+  const s=state.scn;
+  document.getElementById("chAvatar").textContent=s.icon;
+  document.getElementById("chName").textContent=s.name;
+  document.getElementById("chScn").textContent=s.title;
+  state.turn=0; state.answers=[]; state.checks=[];
+  stream.innerHTML=""; sendBtn.disabled=false; input.disabled=false;
+  updProg(); addMsg("cust", s.script[0].cust);
+}
+
+function send(){
+  const txt=input.value.trim(); if(!txt) return;
+  if(state.turn>=state.scn.script.length) return;
+  addMsg("me", txt); state.answers.push(txt); state.turn++;
+  input.value=""; input.style.height="52px";
+  requestAnimationFrame(()=>{ input.value=""; input.style.height="52px"; });
+  if(state.turn<state.scn.script.length){
+    updProg(); setTimeout(()=>addMsg("cust", state.scn.script[state.turn].cust),400);
+  }else{
+    updProg(); sendBtn.disabled=true; input.disabled=true;
+    setTimeout(()=>addMsg("sys","顧客とのやり取りは以上です。「対応を終了して振り返る」を押してください。"),400);
+  }
+}
+sendBtn.onclick=send;
+input.oninput=()=>{ input.style.height="52px"; input.style.height=Math.min(input.scrollHeight,140)+"px"; };
+
+document.getElementById("endBtn").onclick=()=>{
+  if(state.answers.length===0){ addMsg("sys","まだ一度も返信していません。"); return; }
+  document.getElementById("chatwrap").style.display="none";
+  document.getElementById("result").style.display="block";
+  renderReview();
+};
+
+function renderReview(){
+  const s=state.scn;
+  const rev=document.getElementById("review"); rev.innerHTML="";
+  s.script.forEach((step,i)=>{
+    const ans=state.answers[i]; if(ans===undefined) return;
+    const el=document.createElement("div"); el.className="turn";
+    el.innerHTML=`
+      <div class="q"><b>顧客</b>${esc(step.cust)}</div>
+      <div class="a"><b>あなたの返信</b>${esc(ans)}</div>
+      <div class="p"><b>対応のポイント</b>${esc(step.point)}</div>
+      <div class="m"><b>実際の対応例</b>${esc(step.model)}</div>`;
+    rev.appendChild(el);
+  });
+  state.checks=new Array(s.checklist.length).fill(false);
+  const cl=document.getElementById("chkList"); cl.innerHTML="";
+  s.checklist.forEach((item,i)=>{
+    const el=document.createElement("div"); el.className="chk";
+    el.innerHTML=`<div class="box">✓</div><div class="txt">${esc(item)}</div>`;
+    el.onclick=()=>{ state.checks[i]=!state.checks[i]; el.classList.toggle("on",state.checks[i]); updScore(); };
+    cl.appendChild(el);
+  });
+  updScore();
+}
+function updScore(){
+  const total=state.checks.length, done=state.checks.filter(Boolean).length;
+  const score=total?Math.round(done/total*100):0;
+  document.getElementById("snum").textContent=score;
+  const v=score>=80?"素晴らしい対応です":score>=60?"良い対応、あと一歩":score>=40?"基礎はOK、要改善":"振り返って練習しましょう";
+  document.getElementById("sv").textContent=v+"（"+done+"/"+total+"項目）";
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+
+document.getElementById("startBtn").onclick=startChat;
+document.getElementById("againBtn").onclick=()=>{ document.getElementById("result").style.display="none"; document.getElementById("setup").style.display="block"; };
+</script>
