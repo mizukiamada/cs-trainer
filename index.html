@@ -1,512 +1,265 @@
+<!doctype html>
+<html lang="ja">
+<head>
 <meta charset="utf-8">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>開発要望サマリー｜Squad beyond</title>
 <style>
   :root{
-    --bg:#0e1320; --panel:#161d2e; --panel-2:#1d2638; --line:#2a3650;
-    --ink:#e8edf7; --ink-soft:#9aa7c2; --accent:#3fd6b0; --accent-2:#5b8cff;
-    --warn:#ffb454; --bad:#ff6b7a; --good:#3fd6b0; --radius:18px;
+    --bg:#EEF1F4;--ink:#16202E;--ink-soft:#54616F;--line:#DCE2E8;--card:#FFFFFF;
+    --accent:#0E7C72;--accent-soft:#E3F1EF;--warn:#9A6B12;--warn-soft:#FBF1DD;
+    --bar:#0E7C72;--bar-track:#E6EAEE;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:"Zen Kaku Gothic New","Outfit",system-ui,sans-serif;
-    background:radial-gradient(1200px 600px at 85% -10%, rgba(91,140,255,.18), transparent 60%),radial-gradient(900px 500px at -10% 110%, rgba(63,214,176,.14), transparent 55%),var(--bg);
-    color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;}
-  .wrap{max-width:880px;margin:0 auto;padding:28px 18px 60px}
-  header.top{display:flex;align-items:center;gap:14px;margin-bottom:24px}
-  .logo{width:46px;height:46px;border-radius:13px;flex:none;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-family:"Outfit";font-weight:800;color:#0e1320;font-size:22px;box-shadow:0 8px 24px rgba(63,214,176,.3)}
-  .top h1{font-size:20px;font-weight:900;letter-spacing:-.01em}
-  .top p{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
-  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
-  .label{font-size:12px;font-weight:700;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
-  .scenarios{display:grid;gap:10px}
-  .scn{cursor:pointer;border:1.5px solid var(--line);border-radius:13px;padding:14px 16px;background:var(--bg);transition:.18s;display:flex;align-items:center;gap:13px}
-  .scn:hover{border-color:var(--accent-2)}
-  .scn.sel{border-color:var(--accent);background:rgba(63,214,176,.07)}
-  .scn .ico{font-size:22px;flex:none}
-  .scn .st{font-weight:700;font-size:14.5px}
-  .scn .sd{font-size:12px;color:var(--ink-soft);margin-top:3px}
-  .diff{margin-left:auto;font-size:10.5px;font-family:"Outfit";font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
-  .diff.easy{background:rgba(63,214,176,.16);color:var(--good)}
-  .diff.mid{background:rgba(255,180,84,.16);color:var(--warn)}
-  .diff.hard{background:rgba(255,107,122,.16);color:var(--bad)}
-  .btn{width:100%;border:none;border-radius:13px;padding:15px;cursor:pointer;font-family:"Outfit";font-weight:700;font-size:15px;color:#0e1320;background:linear-gradient(135deg,var(--accent),var(--accent-2));transition:.16s}
-  .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
-  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-  .btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
-  .btn.ghost:hover{border-color:var(--accent-2)}
-  .hint{font-size:11.5px;color:var(--ink-soft);text-align:center;margin-top:14px;line-height:1.6}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI","Segoe UI",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 64px}
 
-  .chatwrap,.result{display:none}
-  .chathead{display:flex;align-items:center;gap:13px;margin-bottom:16px}
-  .avatar{width:44px;height:44px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:22px;background:var(--panel-2);border:1px solid var(--line)}
-  .chathead .cn{font-weight:800;font-size:15px}
-  .chathead .cs{font-size:12px;color:var(--ink-soft);margin-top:2px}
-  .chathead .prog{margin-left:auto;font-size:11px;font-family:"Outfit";font-weight:700;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--ink-soft)}
-  .stream{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
-  .stream::-webkit-scrollbar{width:8px}
-  .stream::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
-  .msg{max-width:80%;padding:12px 15px;border-radius:15px;font-size:14px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
-  .msg.cust{align-self:flex-start;background:var(--panel-2);border:1px solid var(--line);border-bottom-left-radius:5px}
-  .msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--accent-2),#4a7bff);color:#fff;border-bottom-right-radius:5px}
-  .msg.sys{align-self:center;font-size:11.5px;color:var(--ink-soft);background:transparent;max-width:90%;text-align:center;font-style:italic}
+  header.head{border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:24px}
+  .eyebrow{font-size:12px;letter-spacing:.08em;color:var(--accent);font-weight:700;margin:0 0 6px}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:.01em}
+  .meta{font-size:13px;color:var(--ink-soft);margin:0}
 
-  .templates{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
-  .tpl{font-size:11.5px;font-weight:600;padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);cursor:pointer;transition:.15s}
-  .tpl:hover{border-color:var(--accent-2);color:var(--ink)}
-  .tpl b{font-family:"Outfit";color:var(--accent)}
-  .composer{display:flex;gap:10px;margin-top:10px}
-  .composer textarea{flex:1;resize:none;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:13px;padding:13px 15px;font-family:inherit;font-size:14px;line-height:1.5;height:52px;max-height:140px}
-  .composer textarea:focus{outline:none;border-color:var(--accent-2)}
-  .send{flex:none;width:52px;border-radius:13px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#0e1320;font-size:20px;font-weight:800}
-  .send:disabled{opacity:.4;cursor:not-allowed}
-  .toolbar{display:flex;gap:10px;margin-top:12px}
-  .toolbar .btn{font-size:13px;padding:11px}
+  .note{display:flex;gap:10px;align-items:flex-start;background:var(--warn-soft);border:1px solid #EBD7A8;border-radius:8px;padding:11px 14px;margin:18px 0 28px;font-size:12.5px;color:var(--warn)}
+  .note b{color:#7A5410}
 
-  .scorebig{text-align:center;padding:6px 0 14px}
-  .scorebig .num{font-family:"Outfit";font-weight:800;font-size:64px;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .scorebig .of{font-size:16px;color:var(--ink-soft);font-family:"Outfit"}
-  .scorebig .verdict{font-weight:800;font-size:15px;margin-top:8px}
-  .scorebig .sub{font-size:12px;color:var(--ink-soft);margin-top:6px}
-  .review{display:grid;gap:14px}
-  .turn{border:1px solid var(--line);border-radius:14px;overflow:hidden}
-  .turn .q{background:var(--panel-2);padding:11px 14px;font-size:13px;line-height:1.6}
-  .turn .q b,.turn .a b,.turn .p b,.turn .m b{font-weight:700;font-size:11px;display:block;margin-bottom:3px}
-  .turn .q b{color:var(--ink-soft)}
-  .turn .a{padding:11px 14px;font-size:13px;line-height:1.6;border-top:1px solid var(--line)}
-  .turn .a b{color:var(--accent-2)}
-  .turn .p{padding:11px 14px;font-size:12.5px;line-height:1.65;border-top:1px solid var(--line);background:rgba(63,214,176,.05);color:var(--ink-soft)}
-  .turn .p b{color:var(--accent)}
-  .turn .m{padding:11px 14px;font-size:12.5px;line-height:1.65;border-top:1px solid var(--line);background:rgba(91,140,255,.06);color:var(--ink-soft)}
-  .turn .m b{color:var(--accent-2)}
-  .checklist{margin-top:4px}
-  .checklist h3{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
-  .checklist .note{font-size:12px;color:var(--ink-soft);margin-bottom:12px;line-height:1.6}
-  .chk{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;margin-bottom:8px;cursor:pointer;transition:.15s}
-  .chk:hover{border-color:var(--accent-2)}
-  .chk.on{border-color:var(--accent);background:rgba(63,214,176,.07)}
-  .chk .box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line);flex:none;display:grid;place-items:center;font-size:13px;color:#0e1320;margin-top:1px}
-  .chk.on .box{background:var(--accent);border-color:var(--accent)}
-  .chk .txt{font-size:13.5px;line-height:1.55}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:30px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 16px 14px}
+  .stat .num{font-size:30px;font-weight:700;line-height:1;letter-spacing:.01em}
+  .stat .lbl{font-size:12px;color:var(--ink-soft);margin-top:7px}
+
+  h2.sec{font-size:15px;margin:34px 0 14px;padding-left:10px;border-left:3px solid var(--accent)}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+
+  .themes{display:flex;flex-direction:column;gap:10px}
+  .theme{display:grid;grid-template-columns:104px 1fr 30px;align-items:center;gap:12px;font-size:13px}
+  .theme .name{color:var(--ink);font-weight:600}
+  .theme .track{background:var(--bar-track);border-radius:6px;height:14px;overflow:hidden}
+  .theme .fill{background:var(--bar);height:100%;border-radius:6px}
+  .theme .cnt{text-align:right;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:var(--accent-soft);color:#0B5650;border:1px solid #C5E3DE;border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:600}
+  .chip span{color:#0E7C72;font-weight:700}
+
+  .table{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .row{display:grid;grid-template-columns:30px 1fr 170px;gap:14px;padding:14px 16px;border-top:1px solid var(--line)}
+  .row:first-child{border-top:none}
+  .row .idx{color:var(--ink-soft);font-size:13px;font-variant-numeric:tabular-nums;padding-top:1px}
+  .row .title{font-weight:700;font-size:14px;margin:0 0 4px}
+  .row .desc{font-size:12.5px;color:var(--ink-soft);margin:0 0 8px}
+  .row .tags{display:flex;flex-wrap:wrap;gap:6px;font-size:11.5px}
+  .tag{background:#EEF1F4;border:1px solid var(--line);border-radius:5px;padding:2px 8px;color:#3D4A57}
+  .prio{font-weight:700;border-radius:5px;padding:2px 8px;font-size:11.5px}
+  .prio-high{background:#F7E3E3;border:1px solid #E6BFBF;color:#9A3B3B}
+  .prio-mid{background:#FBEEDA;border:1px solid #EBD3A6;color:#8A5A12}
+  .prio-low{background:#E5EEF7;border:1px solid #C9DEF0;color:#2C5A86}
+  .prio-none{background:#F4F5F7;border:1px dashed #CBD2DA;color:#8A95A1}
+  .tag.mcp-yes{background:var(--accent-soft);border-color:#C5E3DE;color:#0B5650;font-weight:700}
+  .tag.mcp-no{background:#F7ECEC;border-color:#E6CDCD;color:#9A4B4B;font-weight:700}
+  .tag.dup-none{background:transparent;border:1px solid #DCE2E8;color:#8A95A1;font-weight:400}
+  .note.ok{background:var(--accent-soft);border-color:#C5E3DE;color:#0B5650}
+  .note.ok b{color:#0B5650}
+  .note.ok .okbody{display:flex;flex-direction:column;gap:3px}
+  .note.ok .okh{font-weight:700;margin:0 0 3px}
+  .note.ok .okbody p{margin:0}
+  .note.ok .oklab{display:inline-block;min-width:3.2em;font-weight:700;color:#0B5650;margin-right:8px}
+  .row .side{text-align:right}
+  .row .company{font-size:12.5px;font-weight:600;margin:0 0 2px}
+  .row .company a{color:var(--accent);text-decoration:none}
+  .row .company a:hover{text-decoration:underline}
+  .row .team{font-size:11.5px;color:var(--ink-soft);margin:0 0 6px}
+  .planbadge{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px;margin:0 0 8px}
+  .amount{font-size:12px;font-weight:700;color:#16202E;margin:0 0 8px;font-variant-numeric:tabular-nums}
+  .p-ent{background:#E7E2F6;color:#4A3A8C;border:1px solid #D2C8EE}
+  .p-pro{background:#E3F1EF;color:#0B5650;border:1px solid #C5E3DE}
+  .p-std{background:#E5EEF7;color:#2C5A86;border:1px solid #C9DEF0}
+  .p-lite{background:#F0F2F5;color:#54616F;border:1px solid #DCE2E8}
+  .alink{display:inline-block;font-size:11.5px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid #C5E3DE;border-radius:6px;padding:3px 9px}
+  .alink:hover{background:var(--accent-soft)}
+
+  footer{margin-top:30px;font-size:11.5px;color:var(--ink-soft);text-align:center}
+
+  @media(max-width:680px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .twocol{grid-template-columns:1fr;gap:24px}
+    .row{grid-template-columns:24px 1fr;gap:10px}
+    .row .side{grid-column:1 / -1;text-align:left;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .row .company,.row .team,.planbadge{margin:0}
+  }
+  @media print{body{background:#fff}.alink{border:none;padding:0}.row,.stat,.table,.note{break-inside:avoid}}
 </style>
-
+</head>
+<body>
 <div class="wrap">
-  <header class="top">
-    <div class="logo">CS</div>
-    <div>
-      <h1>CSチャット対応トレーナー</h1>
-      <p>Squad Beyond 問い合わせ対応 / インターン研修用（実データ版）</p>
-    </div>
+
+  <header class="head">
+    <p class="eyebrow">Squad beyond ／ 開発要望サマリー</p>
+    <h1>開発要望 受取一覧</h1>
+    <p class="meta">対象プロジェクト：【Squad】開発要望受取用　／　抽出条件：作成日 2026/6/22　／　件数：8件</p>
   </header>
 
-  <div id="setup">
-    <div class="card">
-      <div class="label">シナリオを選ぶ（実際の問い合わせをもとに作成）</div>
-      <div class="scenarios" id="scnList"></div>
-    </div>
-    <button class="btn" id="startBtn">対応をはじめる</button>
-    <div class="hint">実際のチャット対応のつもりで返信してみましょう。挨拶や締めはテンプレ（マクロ）ボタンで挿入できます。評価のポイントは「自分で考えて案内する部分」です。対応後に実際の対応例と自己チェックで振り返れます。</div>
+  <div class="stats">
+    <div class="stat"><div class="num">8</div><div class="lbl">要望 受取件数</div></div>
+    <div class="stat"><div class="num">6</div><div class="lbl">テーマ分類数</div></div>
+    <div class="stat"><div class="num">3</div><div class="lbl">エンタープライズ発</div></div>
   </div>
 
-  <div class="chatwrap" id="chatwrap">
-    <div class="chathead">
-      <div class="avatar" id="chAvatar">🙍</div>
+  <div class="note ok"><div class="okbody"><p class="okh">過去要望との重複チェック結果</p><p><span class="oklab">結果</span>8件すべて新規要望（同一の過去要望なし）</p><p><span class="oklab">照合</span>Asanaの過去要望をタスク名ベースで照合</p><p><span class="oklab">補足</span>検索／MCP／複製は類似テーマの過去起票あり</p></div></div>
+
+  <div class="twocol">
+    <div>
+      <h2 class="sec">テーマ別の件数</h2>
+      <div class="themes">
+        <div class="theme"><div class="name">MCP連携</div><div class="track"><div class="fill" style="width:100%"></div></div><div class="cnt">2</div></div>
+        <div class="theme"><div class="name">エディターUX</div><div class="track"><div class="fill" style="width:100%"></div></div><div class="cnt">2</div></div>
+        <div class="theme"><div class="name">スワイプLP</div><div class="track"><div class="fill" style="width:50%"></div></div><div class="cnt">1</div></div>
+        <div class="theme"><div class="name">レポート/集計</div><div class="track"><div class="fill" style="width:50%"></div></div><div class="cnt">1</div></div>
+        <div class="theme"><div class="name">検索/遷移</div><div class="track"><div class="fill" style="width:50%"></div></div><div class="cnt">1</div></div>
+        <div class="theme"><div class="name">配信制御</div><div class="track"><div class="fill" style="width:50%"></div></div><div class="cnt">1</div></div>
+      </div>
+    </div>
+    <div>
+      <h2 class="sec">プラン別の件数</h2>
+      <div class="chips">
+        <div class="chip">エンタープライズ <span>3</span></div>
+        <div class="chip">プロ <span>2</span></div>
+        <div class="chip">スタンダード <span>2</span></div>
+        <div class="chip">ライト <span>1</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sec">要望一覧</h2>
+  <div class="table">
+
+    <div class="row">
+      <div class="idx">01</div>
       <div>
-        <div class="cn" id="chName">顧客</div>
-        <div class="cs" id="chScn">—</div>
+        <p class="title">管理画面の検索機能についての要望</p>
+        <p class="desc">文字検索の結果から、グループへも遷移できるようにしてほしい。移動先で新規フォルダを作成したいため。</p>
+        <div class="tags"><span class="prio prio-low">優先度 低</span><span class="tag">検索/遷移</span><span class="tag dup-none">重複なし</span></div>
       </div>
-      <div class="prog" id="chProg">1 / 4</div>
+      <div class="side">
+        <p class="company"><a href="https://app.hubspot.com/contacts/23251619/record/0-2/10001019185" target="_blank" rel="noopener">フルアウト</a></p>
+        <p class="team">チームID 257</p>
+        <span class="planbadge p-ent">エンタープライズ（年間）</span>
+        <p class="amount">月額 ¥237,600</p>
+        <a class="alink" href="https://app.asana.com/0/1209403901077996/1215919626448770" target="_blank" rel="noopener">Asana ↗</a>
+      </div>
     </div>
-    <div class="stream" id="stream"></div>
-    <div class="templates" id="templates"></div>
-    <div class="composer">
-      <textarea id="input" placeholder="返信を入力…（送信は ➤ ボタン）"></textarea>
-      <button class="send" id="sendBtn">➤</button>
+
+    <div class="row">
+      <div class="idx">02</div>
+      <div>
+        <p class="title">MCP連携でLP複製・JavaScript変更を操作したい</p>
+        <p class="desc">MCP連携で「既存beyondページの複製」と「JavaScriptコード変更」も操作できるようにしてほしい。新規LP配信用の“箱”作成で行う作業のため、AI経由でできると便利との要望。</p>
+        <div class="tags"><span class="prio prio-none">優先度 未設定</span><span class="tag">MCP連携</span><span class="tag mcp-no">MCP契約なし</span><span class="tag dup-none">重複なし</span></div>
+      </div>
+      <div class="side">
+        <p class="company"><a href="https://app.hubspot.com/contacts/23251619/record/0-2/10003237753" target="_blank" rel="noopener">AdOps</a></p>
+        <p class="team">チームID 373</p>
+        <span class="planbadge p-lite">ライト（年間）</span><br>
+        <a class="alink" href="https://app.asana.com/0/1209403901077996/1215910516938396" target="_blank" rel="noopener">Asana ↗</a>
+      </div>
     </div>
-    <div class="toolbar">
-      <button class="btn ghost" id="endBtn">対応を終了して振り返る</button>
+
+    <div class="row">
+      <div class="idx">03</div>
+      <div>
+        <p class="title">画像のアップロード前のユニーク名を確認したい</p>
+        <p class="desc">ページに挿入済みの画像のデータ名を、実画面（ホバー／右クリック等）または編集画面（挿入画像を選択時）で確認できるようにしてほしい。画像一覧から名前自体は分かるが「記事内のどの位置の画像か」を特定できず、修正対象の割り出しが困難。取り違え・先祖返り防止のため。</p>
+        <div class="tags"><span class="prio prio-none">優先度 未設定</span><span class="tag">エディターUX</span><span class="tag dup-none">重複なし</span></div>
+      </div>
+      <div class="side">
+        <p class="company"><a href="https://app.hubspot.com/contacts/23251619/record/0-2/26262020937" target="_blank" rel="noopener">株式会社はこ</a></p>
+        <p class="team">チームID 1128</p>
+        <span class="planbadge p-std">スタンダード（単月）</span><br>
+        <a class="alink" href="https://app.asana.com/0/1209403901077996/1215949357909118" target="_blank" rel="noopener">Asana ↗</a>
+      </div>
     </div>
+
+    <div class="row">
+      <div class="idx">04</div>
+      <div>
+        <p class="title">「ページ名」を別タブにしないでほしい</p>
+        <p class="desc">記事作成・複製時の「ページ名」入力が別タブで見落としやすいため、一画面でまとめて見たい。複製時に自動名「◯◯の複製」のままだと複製前ページと見分けがつかず、誤入稿・配信事故の恐れ。※別タブになるのは複製時のみ、作成時は該当せず（CS確認）。</p>
+        <div class="tags"><span class="prio prio-high">優先度 高</span><span class="tag">エディターUX</span><span class="tag dup-none">重複なし</span></div>
+      </div>
+      <div class="side">
+        <p class="company"><a href="https://app.hubspot.com/contacts/23251619/record/0-2/10003296578" target="_blank" rel="noopener">Sweeet</a></p>
+        <p class="team">チームID 253</p>
+        <span class="planbadge p-ent">エンタープライズ（年間）</span>
+        <p class="amount">月額 ¥285,000</p>
+        <a class="alink" href="https://app.asana.com/0/1209403901077996/1215954621512353" target="_blank" rel="noopener">Asana ↗</a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="idx">05</div>
+      <div>
+        <p class="title">ホワイトリスト設定時にレポート除外を回避したい</p>
+        <p class="desc">ホワイトリスト登録時に、レポート除外のON/OFFを選べるようにしてほしい。レート制限回避でホワイトリスト登録すると同時にレポート除外もONになり、レポート／ヒートマップの集計対象外で分析できない（現状1日約150PVが除外）。</p>
+        <div class="tags"><span class="prio prio-high">優先度 高</span><span class="tag">レポート/集計</span><span class="tag dup-none">重複なし</span></div>
+      </div>
+      <div class="side">
+        <p class="company"><a href="https://app.hubspot.com/contacts/23251619/record/0-2/22517046073" target="_blank" rel="noopener">合同会社未踏</a></p>
+        <p class="team">チームID 926</p>
+        <span class="planbadge p-pro">プロ（単月）</span><br>
+        <a class="alink" href="https://app.asana.com/0/1209403901077996/1215987878807418" target="_blank" rel="noopener">Asana ↗</a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="idx">06</div>
+      <div>
+        <p class="title">JShead/JSbodyの一括タグにMCP経由で入れたい</p>
+        <p class="desc">JShead/JSbodyの一括タグをMCP経由で設定できるようにしたい。version別編集や複製時、共通JSを入れたつもりがセッション別で異なるJSが入ることがあるため、最初に一括タグで共通化したい。</p>
+        <div class="tags"><span class="prio prio-none">優先度 未設定</span><span class="tag">MCP連携</span><span class="tag mcp-yes">MCP契約あり</span><span class="tag dup-none">重複なし</span></div>
+      </div>
+      <div class="side">
+        <p class="company"><a href="https://app.hubspot.com/contacts/23251619/record/0-2/10003344045" target="_blank" rel="noopener">株式会社L'amour</a></p>
+        <p class="team">チームID 221</p>
+        <span class="planbadge p-pro">プロ（年間）</span><br>
+        <a class="alink" href="https://app.asana.com/0/1209403901077996/1215993869934995" target="_blank" rel="noopener">Asana ↗</a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="idx">07</div>
+      <div>
+        <p class="title">スワイプLPを別のbeyondページへ複製したい</p>
+        <p class="desc">スワイプLPエディターで作成したバージョンを別のbeyondページへ複製できるようにしたい。通常エディターの4LPで同一beyondページ内ABテスト運用中、そこへ既存スワイプLPを検証追加したいが複製・移行不可で一から作り直し。広告入稿URLを変えたくないため数時間の工数ロスとなりPDCAの足かせ。</p>
+        <div class="tags"><span class="prio prio-high">優先度 高</span><span class="tag">スワイプLP</span><span class="tag dup-none">重複なし</span></div>
+      </div>
+      <div class="side">
+        <p class="company"><a href="https://app.hubspot.com/contacts/23251619/record/0-2/10197475596" target="_blank" rel="noopener">株式会社Neautech</a></p>
+        <p class="team">チームID 665</p>
+        <span class="planbadge p-std">スタンダード（年間）</span><br>
+        <a class="alink" href="https://app.asana.com/0/1209403901077996/1216019587509209" target="_blank" rel="noopener">Asana ↗</a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="idx">08</div>
+      <div>
+        <p class="title">Version出し分けを時間単位で切り替えたい</p>
+        <p class="desc">Version出し分けの切替を、日付だけでなく時間単位でも自動化したい（例：7/1 10時にVersionA→Bへ自動切替）。現状は手動変更か時間別出し分けの手動設定のみで、営業時間外の切替対応に手間が発生。</p>
+        <div class="tags"><span class="prio prio-mid">優先度 中</span><span class="tag">配信制御</span><span class="tag dup-none">重複なし</span></div>
+      </div>
+      <div class="side">
+        <p class="company"><a href="https://app.hubspot.com/contacts/23251619/record/0-2/10003343993" target="_blank" rel="noopener">CyberACE</a></p>
+        <p class="team">チームID 263</p>
+        <span class="planbadge p-ent">エンタープライズ（年間）</span>
+        <p class="amount">月額 ¥510,000</p>
+        <a class="alink" href="https://app.asana.com/0/1209403901077996/1216057737278223" target="_blank" rel="noopener">Asana ↗</a>
+      </div>
+    </div>
+
   </div>
 
-  <div class="result" id="result">
-    <div class="card">
-      <div class="scorebig">
-        <div><span class="num" id="snum">0</span><span class="of">/100</span></div>
-        <div class="verdict" id="sv">—</div>
-        <div class="sub">下のチェックリストを付けると点数が出ます</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="label">対応の振り返り（実際の対応例つき）</div>
-      <div class="review" id="review"></div>
-    </div>
-    <div class="card">
-      <div class="checklist">
-        <h3>自己チェック</h3>
-        <div class="note">自分の対応を振り返り、できていた項目にチェックを入れてください。挨拶・締めのテンプレ部分は評価に含めず、自分で考えて対応した中身を評価します。</div>
-        <div id="chkList"></div>
-      </div>
-    </div>
-    <button class="btn" id="againBtn">別のシナリオ / もう一度</button>
-  </div>
+  <footer>出典：Squad beyond【要望／不具合送信フォーム】受取分　＋　HubSpot（プラン）　／　集計：CX　／　ブラウザの印刷機能でPDF化できます</footer>
+
 </div>
-
-<script>
-// よく使うマクロ（テンプレ）。実際の使用回数の多いものを採用。
-const TEMPLATES = [
-  {label:"お問い合わせ完了", text:"また他のご不明点・ご質問等ございましたら\nいつでも「チャットを始める」よりご連絡ください。\n引き続き、Squad beyondをよろしくお願いいたします！\n\n※本内容は社内で共有されるため、\n次回以降別のメンバーでも同様の対応が可能です。"},
-  {label:"完了後 最後に送る", text:"本チャットは終了いたしました。\n終了後はこちらのチャットにお問合せ頂きましても、サポート側からは内容の確認ができなくなっておりますのでご了承ください。\n\nお問い合わせ時は、新規チャットよりお気軽にご連絡下さいませ。"},
-];
-
-// 実際の対応データをもとに作成（個人名・URL・社内リンクは匿名化／除去）
-const SCENARIOS = [
-  {
-    id:"domain", icon:"🌐", diff:"easy", diffLabel:"やさしい",
-    name:"運用担当者", title:"フォルダのドメイン変更は可能？",
-    desc:"フリードメインで作ったフォルダを独自ドメインに変えたい",
-    script:[
-      {cust:"一度フリードメインを選択して作成したフォルダを、後から独自ドメインへ変更することは可能ですか？",
-       point:"結論（変更可能）を端的に伝え、ナレッジ記事の該当ページを案内する。即答できる定型的な質問。",
-       model:"既に作成したフォルダのドメイン変更は可能です。方法はナレッジ記事（ドメイン変更）にまとまっているのでご案内し、確認を促す。"},
-      {cust:"ありがとうございます。Versionを作り込んでしまった後にドメインを変更しても、Version内容への影響はないという認識でよろしいでしょうか。",
-       point:"懸念点（作り込んだ内容が消えないか）に対し、影響がないと明確に断言して安心させる。",
-       model:"「Versionの内容に影響はございません！」と明確に回答し、不安を解消する。"},
-      {cust:"承知いたしました！ありがとうございます。",
-       point:"お礼を受け、締めのテンプレで気持ちよくクローズする。",
-       model:"「よろしくお願いいたします🙏」など一言添え、「お問い合わせ完了」テンプレでクローズ。"}
-    ],
-    checklist:[
-      "結論（変更可能か）を最初に端的に伝えた",
-      "ナレッジ記事など正確な情報源を案内した",
-      "顧客の懸念（影響の有無）に明確に答えて安心させた",
-      "丁寧でわかりやすい言葉づかいができた",
-      "適切なタイミングで締めのテンプレを使ってクローズした"
-    ]
-  },
-  {
-    id:"heatmap", icon:"📈", diff:"mid", diffLabel:"普通",
-    name:"運用担当者", title:"ヒートマップが途中までしか見れない",
-    desc:"アンケート記事で1問目以降のヒートマップが見れない",
-    script:[
-      {cust:"お世話になっております。ヒートマップに関してご教授頂きたいことがございます。",
-       point:"まず受け止め、具体的な状況を聞く姿勢を示す。いきなり長文回答せず、内容を確認する一次受けが大事。",
-       model:"「ヒートマップに関してですね！続けてご質問内容についてお伺いいたします」と受け止め、詳細を促す。"},
-      {cust:"回答すると次の設問が出てくるタイプのアンケート記事なのですが、1問目以降のヒートマップが見れません。記事全体のヒートマップを確認する方法はありますか？",
-       point:"記事を確認する旨を伝えてから、仕様上できないことを正直に説明する。できない理由（最初から表示されていない部分は取得対象外）を分かりやすく伝えられるか。",
-       model:"記事を確認のうえ、現在の仕様では最初から全文表示されていないとヒートマップが取得できないと説明。1問目以降は回答後に表示されるため対象外、と理由まで添える。"},
-      {cust:"そうなんですね…全体を把握したいのですが、何か方法はないでしょうか？",
-       point:"「できません」で終わらせず、代替案（外部の無料ヒートマップツール等）を提案できるか。顧客の目的（全体把握）に寄り添う姿勢。",
-       model:"代替案として、外部の無料ヒートマップツール（Clarity等）でのレコーディング確認を提案する。"},
-      {cust:"承知いたしました！代替案のご提案、ありがとうございます！",
-       point:"お礼を受け止め、締めのテンプレでクローズ。",
-       model:"「よろしくお願いいたします🙏」と受け、「お問い合わせ完了」テンプレでクローズ。"}
-    ],
-    checklist:[
-      "いきなり長文で答えず、状況を確認する一次受けをした",
-      "仕様上できないことを正直に、かつ理由つきで説明した",
-      "「できない」で終わらせず代替案を提案した",
-      "顧客の目的（全体把握）に寄り添う姿勢を示した",
-      "わかりやすい言葉で説明し、丁寧にクローズした"
-    ]
-  },
-  {
-    id:"upload", icon:"🖼", diff:"mid", diffLabel:"普通",
-    name:"運用担当者", title:"画像のアップロードができない",
-    desc:"サーバーエラーで画像をアップロードできない",
-    script:[
-      {cust:"サーバーエラーとのことで画像のアップロードができない状況なのですが、どうすればよいでしょうか？",
-       point:"まず受け止め、原因調査のために該当の画像（素材）を共有してもらうよう依頼する。手元の情報だけで断定しない。",
-       model:"「アップロードされた画像をご共有いただけますと幸いです！」と、調査に必要な素材の共有を依頼する。"},
-      {cust:"こちらになります！（画像を共有）",
-       point:"共有のお礼を述べ、「確認いたします」と一次受け。すぐ結論を出さず調べる姿勢。",
-       model:"「ありがとうございます！確認いたします！」と受け、調査に入る。"},
-      {cust:"よろしくお願いします。",
-       point:"原因（画像の容量が大きすぎる）を特定し、具体的な解決方法（横幅を400px程度に縮小して容量を下げる）を案内できるか。専門的な内容を平易に。",
-       model:"確認の結果、容量が原因と判明。素材の横幅を400px程度に変更して容量を下げる方法を、手順つきで案内する。"},
-      {cust:"承知しました！ありがとうございます。",
-       point:"対応のお礼を述べ、締めのテンプレでクローズ。",
-       model:"「ご対応のほどよろしくお願いいたします🙏」と添え、「お問い合わせ完了」テンプレでクローズ。"}
-    ],
-    checklist:[
-      "原因調査のため、該当素材の共有を依頼した",
-      "すぐ結論を出さず「確認します」と一次受けした",
-      "原因（容量超過）を特定して伝えた",
-      "具体的な解決手順をわかりやすく案内した",
-      "丁寧にお礼を述べてクローズした"
-    ]
-  },
-  {
-    id:"hide", icon:"🙈", diff:"mid", diffLabel:"普通",
-    name:"運用担当者", title:"配信していない記事を非表示にしたい",
-    desc:"クライアントから外部に表示されないようにと依頼された",
-    script:[
-      {cust:"記事を非表示にするにはどうしたら良いでしょうか？クライアントから、配信してない記事を外部表示できないようにしてほしいと言われており、操作方法を教えていただきたいです！",
-       point:"要望（外部に表示させたくない）を正しく汲み取り、確認する旨を伝える。背景（クライアント要望）も理解した上で対応。",
-       model:"「beyondページの非表示ですね！確認いたします」と受け止め、調査に入る。"},
-      {cust:"ありがとうございます。お願いします！",
-       point:"目的に応じた方法を整理して案内できるか。①Versionを非公開にする方法、②URL自体をなくす方法（ドメイン未設定のフォルダに移動）など、選択肢を示す。",
-       model:"目的別に方法を案内。Versionの配信割合を調整して非公開にする方法、URLをなくしたい場合はドメイン未設定フォルダへ移動する方法を、手順とFAQつきで提示。"},
-      {cust:"ありがとうございます！理解できました！",
-       point:"理解のお礼を受け止め、締めのテンプレでクローズ。",
-       model:"「ご確認いただきありがとうございます！」と受け、「お問い合わせ完了」テンプレでクローズ。"}
-    ],
-    checklist:[
-      "要望と背景（クライアント要望）を正しく汲み取った",
-      "確認する姿勢を一次受けで示した",
-      "目的に応じた複数の方法を整理して案内した",
-      "手順やFAQを添えてわかりやすく説明した",
-      "丁寧にクローズした"
-    ]
-  },
-  {
-    id:"popup", icon:"💬", diff:"mid", diffLabel:"普通",
-    name:"運用担当者", title:"ポップアップが表示されない",
-    desc:"追従型ポップアップを設定したがスマホで表示されない",
-    script:[
-      {cust:"この記事LPで追従型のポップアップを設定したはずなんですが、スマホで開いても表示されず…原因お分かりになりますでしょうか？（ページURLを共有）",
-       point:"URL共有のお礼を述べ、確認する旨を伝える。再現確認のため実際にページを見る姿勢。",
-       model:"「該当のbeyondページをご共有いただきありがとうございます！確認させていただきます」と受ける。"},
-      {cust:"よろしくお願いします。",
-       point:"確認の結果（ポップアップが設定されていないように見える）を率直に伝え、再設定を依頼する。決めつけず「見受けられました」という柔らかい表現。",
-       model:"確認したところ追従型ポップアップが設定されていないように見受けられた旨を伝え、再設定をお願いする。"},
-      {cust:"あれ、設定したつもりだったのですが…もう一度やってみます。",
-       point:"自社環境では正常に表示できたことを伝えて安心させ、再度試してもらうよう促す。保存されない等の問題があれば共有を依頼するフォローも。",
-       model:"「弊社環境では正常に表示できました◎ 再度お試しいただけますと幸いです」と伝え、設定が保存されない等あれば共有を、とフォロー。"},
-      {cust:"わかりました、やってみます。ありがとうございます。",
-       point:"お礼を受け止め、締めのテンプレでクローズ。",
-       model:"丁寧に受け、「お問い合わせ完了」テンプレでクローズ。"}
-    ],
-    checklist:[
-      "URL共有のお礼を述べ、確認の姿勢を示した",
-      "確認結果を決めつけず柔らかい表現で伝えた",
-      "再設定を具体的に依頼した",
-      "自社環境での確認結果を伝えて安心させた",
-      "保存トラブル時のフォローを案内してクローズした"
-    ]
-  },
-  {
-    id:"widget", icon:"🧩", diff:"mid", diffLabel:"普通",
-    name:"運用担当者", title:"診断系ウィジェットを作りたい",
-    desc:"QAに答えると結果が出る「年齢診断」風を作りたい",
-    script:[
-      {cust:"年齢診断のようなものを作成したいのですが、良いウィジェットってございますでしょうか。イメージ：QAに回答していき、最後に結果を発表する形です。",
-       point:"曖昧な要望に対し、イメージを具体化するヒアリングをする。参考にしているLPがあれば共有を依頼するなど、認識をすり合わせる。",
-       model:"「回答によって診断結果が変わるWidgetをイメージされていますか？参考LPがあればご共有ください」と確認する。"},
-      {cust:"はい、回答によって結果が変わるイメージです。参考LPは特にないのですが…。",
-       point:"要望に合うウィジェット候補を提示し、イメージと相違ないか確認を促す。複数案を出せると尚良い。",
-       model:"「Yesの数で結果が変わるアンケート」「分岐型の診断アンケート」などの候補を提示し、イメージと合うか確認を依頼する。"},
-      {cust:"ありがとうございます、確認してみます。",
-       point:"確認を促し、追加情報があれば連絡を、と伝えてクローズ。離席されている場合は一旦クローズの案内。",
-       model:"確認を促し、追加情報があれば連絡を、と案内。返信がなければ一旦クローズのテンプレを使う。"}
-    ],
-    checklist:[
-      "曖昧な要望を具体化するヒアリングをした",
-      "参考LPの共有依頼など認識をすり合わせた",
-      "要望に合う候補を提示した",
-      "イメージとの相違を確認する姿勢を示した",
-      "追加情報の連絡を促して適切にクローズした"
-    ]
-  },
-  {
-    id:"permission", icon:"🔑", diff:"mid", diffLabel:"普通",
-    name:"運用担当者", title:"媒体連携の画面が空になっている",
-    desc:"媒体連携の画面に何も表示されず入力できない",
-    script:[
-      {cust:"媒体連携の画面についてです。御社の例には媒体が並んでいるんですが、弊社アカウントで入るとまっさらで、連携情報を入力できず…。弊社アカウントの権限の問題でしょうか？",
-       point:"状況（権限の問題かという問い）に対し、キャプチャ等の情報共有のお礼を述べ、確認する。",
-       model:"「キャプチャ共有ありがとうございます！」と受け、確認に進む。"},
-      {cust:"よろしくお願いします。",
-       point:"原因（現在メンバー権限のため、媒体連携の権限がない）を特定し、解決策（オーナー権限の方に操作してもらう）を案内できるか。権限についてのナレッジも添える。",
-       model:"現在メンバー権限のため媒体連携の権限がない状態と説明し、権限についてのナレッジを案内。オーナー権限の方に操作いただくよう依頼する。"},
-      {cust:"ありがとうございます！承知いたしました！",
-       point:"理解のお礼を受け、締めのテンプレでクローズ。",
-       model:"「ご確認いただきありがとうございます！」と受け、「お問い合わせ完了」テンプレでクローズ。"}
-    ],
-    checklist:[
-      "共有された情報（キャプチャ）のお礼を述べた",
-      "原因（権限不足）を特定して伝えた",
-      "解決策（オーナー権限者の操作）を具体的に案内した",
-      "権限に関する正確な情報源を添えた",
-      "丁寧にクローズした"
-    ]
-  },
-  {
-    id:"cv", icon:"📊", diff:"hard", diffLabel:"難しい",
-    name:"代理店 営業担当", title:"外部ツールのCVデータ連携でつまずいた",
-    desc:"計測ツールのCVデータをSquad Beyondに返す設定手順を知りたい",
-    script:[
-      {cust:"お世話になります。クライアントを担当している代理店の者です。先方のSquad beyondへ、計測ツールのCVデータを返したいのですが、設定方法のところでつまずいてしまいました。操作手順を教えていただけますか？",
-       point:"問い合わせ者が代理店（顧客の代理）であることを踏まえつつ、該当ツール連携のFAQを案内する。まず一次受けの挨拶も。",
-       model:"「◯◯との連携についてですね！」と受け止め、該当ツール連携のFAQを案内する。"},
-      {cust:"ありがとうございます。FAQを見てみますが、もし途中で分からなければまた聞いてもいいですか？",
-       point:"FAQで不明点があればいつでも聞いてほしいと伝え、サポートを継続する姿勢を示す。",
-       model:"「手順の中でご不明点がございましたらお申し付けくださいませ」とフォローを約束する。"},
-      {cust:"わかりました、ありがとうございます。",
-       point:"解決できたか確認しつつ、締めのテンプレでクローズ。未解決の可能性があれば再連絡を促す。",
-       model:"「上記の内容で解決できましたか？😊」と確認し、いつでも連絡をと案内して「お問い合わせ完了」テンプレでクローズ。"}
-    ],
-    checklist:[
-      "問い合わせ者の立場（代理店）を踏まえて対応した",
-      "該当する連携FAQを正確に案内した",
-      "不明点があれば聞いてほしいとフォローを伝えた",
-      "解決できたかを確認した",
-      "再連絡を促して丁寧にクローズした"
-    ]
-  },
-  {
-    id:"report", icon:"🚫", diff:"hard", diffLabel:"難しい",
-    name:"運用担当者", title:"媒体の審査クリックをレポートから除外したい",
-    desc:"特定媒体の審査クリックをレポートから除きたい",
-    script:[
-      {cust:"特定の媒体の審査クリックを、レポートから除外したいのですが、可能でしょうか。",
-       point:"要望を正確に復唱して受け止め、確認する旨を伝える。関連FAQの案内も。",
-       model:"「◯◯の審査クリックをレポートから除外したい、ということですね。確認させていただきます！」と受け、関連FAQを案内。"},
-      {cust:"はい、その認識で合っています。可能であれば設定方法を教えてください。",
-       point:"その場で断定できない技術的な内容について、社内確認が必要と判断できるか。安易に「できます／できません」と答えない慎重さ。",
-       model:"判断が難しい内容のため、その場で断定せず社内確認に進む判断をする。"},
-      {cust:"承知しました。よろしくお願いします。",
-       point:"社内で確認する旨と、確認でき次第あらためて新規チャットで連絡する旨を伝え、時間がかかることへのお詫び・お願いを添える。",
-       model:"「一度社内にて確認させていただきます🙏 進捗があり次第、新規チャットにてご連絡いたします。お時間をいただきますがよろしくお願いいたします」と伝える。"}
-    ],
-    checklist:[
-      "要望を正確に復唱して受け止めた",
-      "関連する情報源（FAQ）を案内した",
-      "断定できない内容を安易に答えず、社内確認が必要と判断した",
-      "社内確認と再連絡の流れを明確に伝えた",
-      "時間がかかることへのお詫び・お願いを添えた"
-    ]
-  },
-  {
-    id:"plan", icon:"⚠️", diff:"hard", diffLabel:"難しい",
-    name:"運用担当者", title:"急に記事が見れなくなった（権限変更）",
-    desc:"昨日まで編集できた記事が今日は見られない",
-    script:[
-      {cust:"記事を作成していたのですが、リロードしたら今まで記事が並んでいたページが出なくなってしまいました。権限を誰かが変更したのでしょうか？昨晩は編集できていたのですが…。",
-       point:"困惑と不安が出ている。まず状況を受け止め、確認する。原因がこちら側の事情（権限変更）の場合、伝え方に配慮が要る。",
-       model:"「記事が見つからないということですね。確認いたします」と受け、状況を調べる。"},
-      {cust:"はい、お願いします。何か私の操作が問題だったのでしょうか…？",
-       point:"原因（無料キャンペーン終了に伴い、契約人数超過分がフリーユーザーに変更された）を、顧客のせいにせず事実として丁寧に説明できるか。言いにくい内容を誠実に。",
-       model:"現在フリーユーザーになっており、オーナー権限者が付与したフォルダのみ閲覧可能と説明。背景として、無料追加キャンペーン終了と契約人数超過のため変更した旨を、事実として丁寧に伝える。"},
-      {cust:"承知しました。では、また編集するにはどうすればいいですか？",
-       point:"解決策（オーナー権限者に権限を付与してもらう／契約人数以上で編集するならプランアップグレードが必要）を、契約内容とあわせて明確に案内できるか。",
-       model:"オーナー権限者から権限を付与してもらう必要がある旨、契約人数以上で編集する場合はプランアップグレードが必要な旨を、現在の契約内容とあわせて案内する。"},
-      {cust:"なるほど、わかりました。社内で相談してみます。",
-       point:"理解いただいたことに感謝し、注意点を添えてクローズ。離席時は一旦クローズのテンプレ。",
-       model:"フリーユーザーの制約に注意いただくよう添え、丁寧にクローズする。"}
-    ],
-    checklist:[
-      "困惑・不安をまず受け止めた",
-      "原因を顧客のせいにせず事実として丁寧に説明した",
-      "言いにくい内容（こちら側都合の変更）を誠実に伝えた",
-      "解決策と契約内容を明確に案内した",
-      "注意点を添えて丁寧にクローズした"
-    ]
-  }
-];
-
-const state = { scn:SCENARIOS[0], turn:0, answers:[], checks:[] };
-
-const scnList = document.getElementById("scnList");
-SCENARIOS.forEach((s,i)=>{
-  const el = document.createElement("div");
-  el.className = "scn"+(i===0?" sel":"");
-  el.innerHTML = `<div class="ico">${s.icon}</div>
-    <div><div class="st">${s.title}</div><div class="sd">${s.desc}</div></div>
-    <div class="diff ${s.diff}">${s.diffLabel}</div>`;
-  el.onclick = ()=>{ document.querySelectorAll(".scn").forEach(x=>x.classList.remove("sel")); el.classList.add("sel"); state.scn=s; };
-  scnList.appendChild(el);
-});
-
-const stream = document.getElementById("stream");
-const input = document.getElementById("input");
-const sendBtn = document.getElementById("sendBtn");
-
-// テンプレボタン
-const tplBox = document.getElementById("templates");
-TEMPLATES.forEach(t=>{
-  const b = document.createElement("div");
-  b.className="tpl";
-  b.innerHTML = `<b>＋</b> ${t.label}`;
-  b.onclick = ()=>{
-    input.value = (input.value ? input.value+"\n\n" : "") + t.text;
-    input.focus(); input.style.height="52px"; input.style.height=Math.min(input.scrollHeight,140)+"px";
-  };
-  tplBox.appendChild(b);
-});
-
-function addMsg(role, text){
-  const el=document.createElement("div"); el.className="msg "+role; el.textContent=text;
-  stream.appendChild(el); stream.scrollTop=stream.scrollHeight;
-}
-function updProg(){ document.getElementById("chProg").textContent = Math.min(state.turn+1, state.scn.script.length)+" / "+state.scn.script.length; }
-
-function startChat(){
-  document.getElementById("setup").style.display="none";
-  document.getElementById("chatwrap").style.display="block";
-  const s=state.scn;
-  document.getElementById("chAvatar").textContent=s.icon;
-  document.getElementById("chName").textContent=s.name;
-  document.getElementById("chScn").textContent=s.title;
-  state.turn=0; state.answers=[]; state.checks=[];
-  stream.innerHTML=""; sendBtn.disabled=false; input.disabled=false;
-  updProg(); addMsg("cust", s.script[0].cust);
-}
-
-function send(){
-  const txt=input.value.trim(); if(!txt) return;
-  if(state.turn>=state.scn.script.length) return;
-  addMsg("me", txt); state.answers.push(txt); state.turn++;
-  input.value=""; input.style.height="52px";
-  requestAnimationFrame(()=>{ input.value=""; input.style.height="52px"; });
-  if(state.turn<state.scn.script.length){
-    updProg(); setTimeout(()=>addMsg("cust", state.scn.script[state.turn].cust),400);
-  }else{
-    updProg(); sendBtn.disabled=true; input.disabled=true;
-    setTimeout(()=>addMsg("sys","顧客とのやり取りは以上です。「対応を終了して振り返る」を押してください。"),400);
-  }
-}
-sendBtn.onclick=send;
-input.oninput=()=>{ input.style.height="52px"; input.style.height=Math.min(input.scrollHeight,140)+"px"; };
-
-document.getElementById("endBtn").onclick=()=>{
-  if(state.answers.length===0){ addMsg("sys","まだ一度も返信していません。"); return; }
-  document.getElementById("chatwrap").style.display="none";
-  document.getElementById("result").style.display="block";
-  renderReview();
-};
-
-function renderReview(){
-  const s=state.scn;
-  const rev=document.getElementById("review"); rev.innerHTML="";
-  s.script.forEach((step,i)=>{
-    const ans=state.answers[i]; if(ans===undefined) return;
-    const el=document.createElement("div"); el.className="turn";
-    el.innerHTML=`
-      <div class="q"><b>顧客</b>${esc(step.cust)}</div>
-      <div class="a"><b>あなたの返信</b>${esc(ans)}</div>
-      <div class="p"><b>対応のポイント</b>${esc(step.point)}</div>
-      <div class="m"><b>実際の対応例</b>${esc(step.model)}</div>`;
-    rev.appendChild(el);
-  });
-  state.checks=new Array(s.checklist.length).fill(false);
-  const cl=document.getElementById("chkList"); cl.innerHTML="";
-  s.checklist.forEach((item,i)=>{
-    const el=document.createElement("div"); el.className="chk";
-    el.innerHTML=`<div class="box">✓</div><div class="txt">${esc(item)}</div>`;
-    el.onclick=()=>{ state.checks[i]=!state.checks[i]; el.classList.toggle("on",state.checks[i]); updScore(); };
-    cl.appendChild(el);
-  });
-  updScore();
-}
-function updScore(){
-  const total=state.checks.length, done=state.checks.filter(Boolean).length;
-  const score=total?Math.round(done/total*100):0;
-  document.getElementById("snum").textContent=score;
-  const v=score>=80?"素晴らしい対応です":score>=60?"良い対応、あと一歩":score>=40?"基礎はOK、要改善":"振り返って練習しましょう";
-  document.getElementById("sv").textContent=v+"（"+done+"/"+total+"項目）";
-}
-function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
-
-document.getElementById("startBtn").onclick=startChat;
-document.getElementById("againBtn").onclick=()=>{ document.getElementById("result").style.display="none"; document.getElementById("setup").style.display="block"; };
-</script>
+</body>
+</html>
